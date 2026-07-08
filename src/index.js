@@ -14,16 +14,22 @@ app.use((req, res, next) => {
   next();
 });
 
+const router = express.Router();
+
 // Rotas admin (sem autenticação por tenant)
-app.use('/admin', require('./routes/admin'));
+router.use('/admin', require('./routes/admin'));
 
 // Rotas protegidas por api_key
-app.use('/status',   tenantMiddleware, require('./routes/status'));
-app.use('/otp',      tenantMiddleware, require('./routes/otp'));
-app.use('/messages', tenantMiddleware, require('./routes/messages'));
+router.use('/status',   tenantMiddleware, require('./routes/status'));
+router.use('/otp',      tenantMiddleware, require('./routes/otp'));
+router.use('/messages', tenantMiddleware, require('./routes/messages'));
 
 // Health check
-app.get('/', (req, res) => res.json({ servico: 'website-notify', status: 'ok' }));
+router.get('/', (req, res) => res.json({ servico: 'website-notify', status: 'ok' }));
+
+// Suporta tanto /notify/... (via Tailscale Funnel) como / (acesso direto)
+app.use('/notify', router);
+app.use('/', router);
 
 const PORT = process.env.PORT || 3010;
 
