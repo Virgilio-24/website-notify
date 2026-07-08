@@ -20,7 +20,12 @@ async function getOrCreateSession(tenantId) {
     authStrategy: new LocalAuth({ clientId: tenantId }),
     puppeteer: {
       executablePath,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+      ],
     },
   });
 
