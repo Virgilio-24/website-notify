@@ -19,12 +19,15 @@ async function getOrCreateSession(tenantId) {
   const client = new Client({
     authStrategy: new LocalAuth({ clientId: tenantId }),
     puppeteer: {
+      headless: true,
       executablePath,
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
         '--disable-gpu',
+        '--disable-software-rasterizer',
+        '--disable-extensions',
       ],
     },
   });
