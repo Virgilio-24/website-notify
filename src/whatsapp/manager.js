@@ -11,25 +11,26 @@ async function getOrCreateSession(tenantId) {
   const session = { client: null, status: 'desligado', qr: null };
   sessions.set(tenantId, session);
 
-  const executablePath = process.env.CHROME_PATH
-    || (process.platform === 'win32'
-      ? `${process.env.USERPROFILE}\\.cache\\puppeteer\\chrome\\win64-146.0.7680.31\\chrome-win64\\chrome.exe`
-      : '/usr/bin/google-chrome-stable');
+  const puppeteerOpts = {
+    headless: true,
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-gpu',
+      '--disable-software-rasterizer',
+      '--disable-extensions',
+    ],
+  };
+
+  // Em Windows usa Chrome do sistema via variável de ambiente
+  if (process.env.CHROME_PATH) {
+    puppeteerOpts.executablePath = process.env.CHROME_PATH;
+  }
 
   const client = new Client({
     authStrategy: new LocalAuth({ clientId: tenantId }),
-    puppeteer: {
-      headless: true,
-      executablePath,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-gpu',
-        '--disable-software-rasterizer',
-        '--disable-extensions',
-      ],
-    },
+    puppeteer: puppeteerOpts,
   });
 
   session.client = client;
