@@ -11,9 +11,17 @@ async function getOrCreateSession(tenantId) {
   const session = { client: null, status: 'desligado', qr: null };
   sessions.set(tenantId, session);
 
+  const executablePath = process.env.CHROME_PATH
+    || (process.platform === 'win32'
+      ? `${process.env.USERPROFILE}\\.cache\\puppeteer\\chrome\\win64-146.0.7680.31\\chrome-win64\\chrome.exe`
+      : '/usr/bin/google-chrome-stable');
+
   const client = new Client({
     authStrategy: new LocalAuth({ clientId: tenantId }),
-    puppeteer: { args: ['--no-sandbox', '--disable-setuid-sandbox'] },
+    puppeteer: {
+      executablePath,
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    },
   });
 
   session.client = client;
