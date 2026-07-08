@@ -121,7 +121,12 @@ async function restoreActiveSessions() {
   const res = await db.query(`SELECT tenant_id FROM wa_sessions WHERE ligado=true`);
   for (const row of res.rows) {
     console.log(`[WA] A restaurar sessão: ${row.tenant_id}`);
-    await getOrCreateSession(row.tenant_id);
+    try {
+      await getOrCreateSession(row.tenant_id);
+    } catch (err) {
+      console.error(`[WA] Falhou restaurar ${row.tenant_id}:`, err.message);
+      await db.query(`UPDATE wa_sessions SET ligado=false WHERE tenant_id=$1`, [row.tenant_id]);
+    }
   }
 }
 
